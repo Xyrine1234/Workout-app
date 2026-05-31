@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="My Workout">
+<title>My Workout</title>
+<style>
+:root{
+  --bg:#ffffff;--bg2:#f0f0ee;--bg3:#e8e6e0;
+  --tx:#1a1a19;--tx2:#5f5e5a;--tx3:#888780;
+  --txi:#0c447c;--txs:#27500a;--txw:#633806;
+  --bgi:#e6f1fb;--bgs:#eaf3de;--bgw:#faeeda;
+  --bdr:rgba(0,0,0,0.13);--bdr2:rgba(0,0,0,0.25);
+  --r:10px;--rl:14px;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1c1c1a;--bg2:#272725;--bg3:#272725;
+  --tx:#e8e6df;--tx2:#b4b2a9;--tx3:#888780;
+  --txi:#85b7eb;--txs:#97c459;--txw:#ef9f27;
+  --bgi:#042c53;--bgs:#173404;--bgw:#412402;
+  --bdr:rgba(255,255,255,0.10);--bdr2:rgba(255,255,255,0.22);
+}}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{min-height:100vh;background:var(--bg3);font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;color:var(--tx);}
+body{padding:0 0 40px;}
+
+/* pages */
+.page{display:none;padding:16px;max-width:480px;margin:0 auto;}
+.page.on{display:block;}
+
+/* home */
+.home-title{font-size:26px;font-weight:700;color:var(--tx);padding-top:12px;margin-bottom:2px;}
+.home-sub{font-size:14px;color:var(--tx2);margin-bottom:20px;}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.stat{background:var(--bg2);border-radius:var(--r);padding:16px;text-align:center;}
+.stat-n{font-size:34px;font-weight:700;color:var(--tx);}
+.stat-l{font-size:12px;color:var(--tx2);margin-top:2px;}
+.sec-label{font-size:13px;font-weight:600;color:var(--tx2);margin:0 0 10px;letter-spacing:.02em;}
+
+/* exercise rows */
+.ex{background:var(--bg);border:0.5px solid var(--bdr);border-radius:var(--rl);padding:14px 14px 14px 14px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none;}
+.ex:active{background:var(--bg2);}
+.ex.done{opacity:0.45;}
+.ex-body{flex:1;}
+.ex-name{font-size:15px;font-weight:600;color:var(--tx);margin-bottom:3px;}
+.ex-meta{font-size:13px;color:var(--tx2);}
+.ex-chev{font-size:22px;color:var(--tx3);}
+.circle{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--bdr2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--tx2);}
+.circle.done{background:var(--bgs);border-color:var(--txs);color:var(--txs);}
+.wk{display:inline-block;font-size:10px;font-weight:600;padding:1px 7px;border-radius:20px;background:var(--bgw);color:var(--txw);margin-left:6px;vertical-align:middle;}
+
+/* reset btn */
+.reset-btn{width:100%;background:transparent;border:1px solid var(--bdr2);border-radius:var(--r);padding:15px;font-size:15px;font-weight:500;color:var(--tx);cursor:pointer;font-family:inherit;margin-top:4px;}
+.reset-btn:active{background:var(--bg2);}
+
+/* detail page */
+.back-btn{background:transparent;border:1px solid var(--bdr2);border-radius:var(--r);width:42px;height:42px;font-size:22px;cursor:pointer;color:var(--tx2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.back-btn:active{background:var(--bg2);}
+.det-hdr{display:flex;align-items:center;gap:12px;margin-bottom:16px;padding-top:12px;}
+.det-title{font-size:17px;font-weight:700;color:var(--tx);}
+.det-meta{font-size:13px;color:var(--tx2);}
+.prog-wrap{height:5px;background:var(--bg2);border-radius:3px;margin-bottom:18px;overflow:hidden;}
+.prog{height:5px;background:var(--tx);border-radius:3px;}
+.det-card{background:var(--bg);border:0.5px solid var(--bdr);border-radius:var(--rl);padding:18px;margin-bottom:14px;}
+.pill{display:inline-block;font-size:11px;font-weight:600;padding:3px 11px;border-radius:20px;margin-bottom:10px;}
+.pill-s{background:var(--bgw);color:var(--txw);}
+.pill-k{background:var(--bgs);color:var(--txs);}
+.wt-badge{display:inline-block;font-size:12px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--bgi);color:var(--txi);margin-bottom:12px;}
+
+/* timer */
+.timer-box{display:flex;flex-direction:column;align-items:center;padding:10px 0 14px;gap:8px;}
+.t-state{font-size:12px;font-weight:600;padding:3px 12px;border-radius:20px;}
+.ts-ready{background:var(--bgw);color:var(--txw);}
+.ts-go{background:var(--bgs);color:var(--txs);}
+.ts-pause{background:var(--bg2);color:var(--tx2);}
+.t-num{font-size:68px;font-weight:700;letter-spacing:-3px;font-variant-numeric:tabular-nums;color:var(--tx);line-height:1;}
+.t-lbl{font-size:13px;color:var(--tx2);min-height:18px;text-align:center;}
+.play-btn{background:var(--tx);color:var(--bg);border:none;border-radius:var(--r);padding:13px 36px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:4px;}
+.play-btn:active{opacity:0.75;}
+
+/* sets */
+.sets-lbl{font-size:13px;color:var(--tx2);margin:14px 0 10px;}
+.dots{display:flex;gap:10px;flex-wrap:wrap;}
+.sdot{width:46px;height:46px;border-radius:50%;border:1.5px solid var(--bdr2);background:transparent;font-size:16px;font-weight:600;color:var(--tx2);cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;}
+.sdot:active{opacity:0.7;}
+.sdot.on{background:var(--tx);color:var(--bg);border-color:transparent;}
+
+/* rest */
+.rest-box{text-align:center;padding:18px 0 12px;display:none;}
+.rest-n{font-size:56px;font-weight:700;font-variant-numeric:tabular-nums;color:var(--tx);line-height:1;}
+.rest-l{font-size:12px;color:var(--tx2);margin-top:4px;}
+.skip-btn{width:100%;background:transparent;border:1px solid var(--bdr2);border-radius:var(--r);padding:13px;font-size:14px;font-weight:500;color:var(--tx);cursor:pointer;font-family:inherit;margin-top:8px;}
+.skip-btn:active{background:var(--bg2);}
+.hdiv{height:0.5px;background:var(--bdr);margin:14px 0;}
+
+/* cue */
+.cue{background:var(--bg2);border-radius:var(--r);padding:14px;font-size:14px;color:var(--tx2);line-height:1.75;margin-top:14px;}
+.cue b{font-weight:700;color:var(--tx);}
+
+/* nav */
+.nav-row{display:flex;gap:10px;margin-bottom:10px;}
+.nav-btn{flex:1;border-radius:var(--r);padding:15px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;border:none;text-align:center;}
+.nav-btn:active{opacity:0.75;}
+.nb-out{background:transparent;border:1px solid var(--bdr2);color:var(--tx);}
+.nb-dark{background:var(--tx);color:var(--bg);}
+.mark-btn{width:100%;background:transparent;border:1px solid var(--bdr2);border-radius:var(--r);padding:15px;font-size:15px;font-weight:600;color:var(--tx);cursor:pointer;font-family:inherit;}
+.mark-btn:active{background:var(--bg2);}
+
+/* complete */
+.comp-wrap{text-align:center;padding:48px 0 28px;}
+.comp-icon{font-size:72px;margin-bottom:16px;}
+.comp-title{font-size:26px;font-weight:700;color:var(--tx);margin-bottom:8px;}
+.comp-sub{font-size:15px;color:var(--tx2);}
+.action-btn{width:100%;border:none;border-radius:var(--r);padding:16px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;margin-bottom:10px;}
+.action-btn:active{opacity:0.75;}
+.ab-dark{background:var(--tx);color:var(--bg);}
+.ab-out{background:transparent;border:1px solid var(--bdr2);color:var(--tx);}
+</style>
+</head>
+<body>
+
+<!-- ═══════════ HOME ═══════════ -->
+<div class="page on" id="pg-home">
+  <p class="home-title">Your session</p>
+  <p class="home-sub">Tue &middot; Thu &middot; Sat</p>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="cnt-done">0</div><div class="stat-l">completed today</div></div>
+    <div class="stat"><div class="stat-n">12</div><div class="stat-l">total exercises</div></div>
+  </div>
+
+  <p class="sec-label">Phase 1 &mdash; Stretching</p>
+
+  <a class="ex" id="ex-0" href="#">
+    <div class="circle" id="ck-0"></div>
+    <div class="ex-body"><div class="ex-name">90/90 hip stretch</div><div class="ex-meta">2 min each side</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+  <a class="ex" id="ex-1" href="#">
+    <div class="circle" id="ck-1"></div>
+    <div class="ex-body"><div class="ex-name">World's greatest stretch</div><div class="ex-meta">5 reps each side, slow</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+  <a class="ex" id="ex-2" href="#">
+    <div class="circle" id="ck-2"></div>
+    <div class="ex-body"><div class="ex-name">Cat-cow</div><div class="ex-meta">10 slow reps, breathe</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+  <a class="ex" id="ex-3" href="#">
+    <div class="circle" id="ck-3"></div>
+    <div class="ex-body"><div class="ex-name">Thoracic spine rotation</div><div class="ex-meta">10 reps each side</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+  <a class="ex" id="ex-4" href="#">
+    <div class="circle" id="ck-4"></div>
+    <div class="ex-body"><div class="ex-name">Doorway chest stretch</div><div class="ex-meta">30 sec hold x 4 rounds</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+  <a class="ex" id="ex-5" href="#">
+    <div class="circle" id="ck-5"></div>
+    <div class="ex-body"><div class="ex-name">Lying hamstring stretch</div><div class="ex-meta">2 min each side</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+  <a class="ex" id="ex-6" href="#">
+    <div class="circle" id="ck-6"></div>
+    <div class="ex-body"><div class="ex-name">Neck rolls &amp; levator stretch</div><div class="ex-meta">5 rolls each way + 30 sec hold</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+
+  <p class="sec-label" style="margin-top:18px">Phase 2 &mdash; Kettlebell</p>
+
+  <a class="ex" id="ex-7" href="#">
+    <div class="circle" id="ck-7"></div>
+    <div class="ex-body"><div class="ex-name">Kettlebell deadlift <span class="wk">Week 1-2</span></div><div class="ex-meta">3 sets x 8 reps &middot; 16kg</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+  <a class="ex" id="ex-8" href="#">
+    <div class="circle" id="ck-8"></div>
+    <div class="ex-body"><div class="ex-name">Kettlebell swing <span class="wk">Add week 2-3</span></div><div class="ex-meta">3 sets x 10 reps &middot; 16kg</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+  <a class="ex" id="ex-9" href="#">
+    <div class="circle" id="ck-9"></div>
+    <div class="ex-body"><div class="ex-name">Goblet squat <span class="wk">Add week 2-3</span></div><div class="ex-meta">3 sets x 8 reps &middot; 16kg</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+  <a class="ex" id="ex-10" href="#">
+    <div class="circle" id="ck-10"></div>
+    <div class="ex-body"><div class="ex-name">Kettlebell halo <span class="wk">Add week 3-4</span></div><div class="ex-meta">3 sets x 6 reps each way &middot; 8-12kg</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+  <a class="ex" id="ex-11" href="#">
+    <div class="circle" id="ck-11"></div>
+    <div class="ex-body"><div class="ex-name">Turkish get-up <span class="wk">Add week 4+</span></div><div class="ex-meta">2 sets x 3 reps each side &middot; 8-12kg</div></div>
+    <div class="ex-chev">&#8250;</div>
+  </a>
+
+  <div class="hdiv"></div>
+  <button class="reset-btn" id="btn-reset">&#8635; Reset session</button>
+</div>
+
+<!-- ═══════════ DETAIL ═══════════ -->
+<div class="page" id="pg-detail">
+  <div class="det-hdr">
+    <button class="back-btn" id="btn-back">&#8592;</button>
+    <div><div class="det-title" id="d-name"></div><div class="det-meta" id="d-meta"></div></div>
+  </div>
+  <div class="prog-wrap"><div class="prog" id="d-prog" style="width:8%"></div></div>
+  <div class="det-card">
+    <div id="d-pill"></div>
+    <div id="d-wt"></div>
+
+    <!-- timer section -->
+    <div id="sec-timer" style="display:none">
+      <div class="timer-box">
+        <span class="t-state ts-ready" id="t-state">Get ready</span>
+        <div class="t-num" id="t-num">0:20</div>
+        <div class="t-lbl" id="t-lbl">Read the instructions then press start</div>
+        <button class="play-btn" id="btn-play">&#9654; Start</button>
+      </div>
+    </div>
+
+    <!-- sets section -->
+    <div id="sec-sets" style="display:none">
+      <div class="sets-lbl" id="sets-lbl">Sets completed</div>
+      <div class="dots" id="d-dots"></div>
+      <div class="rest-box" id="rest-box">
+        <div class="hdiv"></div>
+        <div class="rest-n" id="rest-n">1:00</div>
+        <div class="rest-l">Rest &mdash; next set coming up</div>
+        <button class="skip-btn" id="btn-skip">Skip rest</button>
+      </div>
+    </div>
+
+    <div class="cue" id="d-cue"></div>
+  </div>
+
+  <div class="nav-row">
+    <button class="nav-btn nb-out" id="btn-prev">&#8592; Prev</button>
+    <button class="nav-btn nb-dark" id="btn-next">Next &#8594;</button>
+  </div>
+  <button class="mark-btn" id="btn-mark">&#10003; Mark as done</button>
+</div>
+
+<!-- ═══════════ COMPLETE ═══════════ -->
+<div class="page" id="pg-complete">
+  <div class="comp-wrap">
+    <div class="comp-icon">&#9989;</div>
+    <div class="comp-title">Session complete!</div>
+    <div class="comp-sub">Great work &mdash; rest up for your next jiu jitsu class.</div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-n" id="c-count">0</div><div class="stat-l">exercises done</div></div>
+    <div class="stat"><div class="stat-n" id="c-time">0</div><div class="stat-l">minutes</div></div>
+  </div>
+  <button class="action-btn ab-dark" id="btn-newses">Start new session</button>
+  <button class="action-btn ab-out" id="btn-ovw">Back to overview</button>
+</div>
+
+<script>
+var DATA=[
+  {id:0,phase:"s",name:"90/90 hip stretch",meta:"2 min each side",tsecs:120,tlbl:"each side",cue:"<b>How:</b> Sit on the floor with both knees bent at 90&deg;, one leg in front and one behind. Sit tall and lean gently over your front shin. Switch sides halfway through.<br><br><b>Why:</b> Opens the hips directly &mdash; huge benefit for guard and ground work in BJJ."},
+  {id:1,phase:"s",name:"World's greatest stretch",meta:"5 reps each side, slow",cue:"<b>How:</b> Start in a lunge. Place your same-side hand inside your front foot. Rotate the opposite arm up to the ceiling, eyes follow. Hold 2-3 sec at the top.<br><br><b>Why:</b> Hits hips, thoracic spine and shoulders in one movement."},
+  {id:2,phase:"s",name:"Cat-cow",meta:"10 slow reps, breathe",cue:"<b>How:</b> On hands and knees. Inhale as you drop your belly and lift your head (cow). Exhale as you round your back up (cat). Move slowly with your breath.<br><br><b>Why:</b> Mobilises the thoracic spine for shrimping and bridging."},
+  {id:3,phase:"s",name:"Thoracic spine rotation",meta:"10 reps each side",cue:"<b>How:</b> Lie on your side, knees stacked at 90&deg;. Keep your bottom arm out straight. Slowly rotate your top arm open across your body toward the floor. Follow with your eyes.<br><br><b>Why:</b> Directly improves your ability to shrimp and escape."},
+  {id:4,phase:"s",name:"Doorway chest stretch",meta:"30 sec hold x 4 rounds",tsecs:30,tlbl:"hold per round",cue:"<b>How:</b> Stand in a doorway. Forearms on the frame at 90&deg;. Step one foot through and lean your bodyweight forward until you feel a stretch across your chest.<br><br><b>Why:</b> Counters rounded shoulder posture from BJJ."},
+  {id:5,phase:"s",name:"Lying hamstring stretch",meta:"2 min each side",tsecs:120,tlbl:"each side",cue:"<b>How:</b> Lie on your back. Loop a towel around one foot and gently pull your leg up with the knee soft. Keep the other leg flat.<br><br><b>Why:</b> Tight hamstrings limit guard mobility significantly."},
+  {id:6,phase:"s",name:"Neck rolls & levator stretch",meta:"5 rolls each way + 30 sec hold",tsecs:30,tlbl:"each side",cue:"<b>How:</b> Tilt your head to one shoulder, then rotate your nose toward your armpit. Add gentle hand pressure on the back of your head.<br><br><b>Why:</b> BJJ stresses the neck heavily &mdash; essential injury prevention."},
+  {id:7,phase:"k",name:"Kettlebell deadlift",meta:"3 sets x 8 reps &middot; 16kg",wt:"16kg",sets:3,reps:8,rest:60,cue:"<b>How:</b> Stand over the kettlebell, feet hip-width. Push hips back (not down), grip the handle, brace your core, stand tall. Lower with control.<br><br><b>Why:</b> Teaches the hip hinge that powers every other kettlebell movement. Do not skip this."},
+  {id:8,phase:"k",name:"Kettlebell swing",meta:"3 sets x 10 reps &middot; 16kg",wt:"16kg",sets:3,reps:10,rest:90,cue:"<b>How:</b> Hike the bell back between your legs, then drive your hips forward explosively. The bell floats to chest height on hip power, not arms. Let it swing back and repeat.<br><br><b>Why:</b> Best posterior chain exercise for your goals &mdash; power, calories, BJJ explosiveness."},
+  {id:9,phase:"k",name:"Goblet squat",meta:"3 sets x 8 reps &middot; 16kg",wt:"16kg",sets:3,reps:8,rest:60,cue:"<b>How:</b> Hold the bell by the horns at chest height. Feet slightly wider than hip-width. Squat down keeping your chest tall and elbows inside your knees. Drive through your heels.<br><br><b>Why:</b> Builds leg strength and hip mobility for BJJ."},
+  {id:10,phase:"k",name:"Kettlebell halo",meta:"3 sets x 6 reps each way &middot; 8-12kg",wt:"8-12kg",sets:3,reps:6,rest:45,cue:"<b>How:</b> Hold the bell upside down at chest height. Slowly circle it around your head, core tight, hips still. Reverse direction each set.<br><br><b>Why:</b> Builds shoulder stability and thoracic mobility &mdash; both vital for BJJ."},
+  {id:11,phase:"k",name:"Turkish get-up",meta:"2 sets x 3 reps each side &middot; 8-12kg",wt:"8-12kg",sets:2,reps:3,rest:90,cue:"<b>How:</b> Lie on your back, bell locked out above you. Roll to elbow, post to hand, bridge hips, sweep leg through, kneel, stand. Reverse back down. Move slowly. Watch a tutorial before attempting.<br><br><b>Why:</b> The most complete KB movement &mdash; shoulder stability, core strength, ground-to-standing athleticism."}
+];
+
+var READY=20,cur=0,done={},sessStart=null;
+var tInt=null,rInt=null,tSecs=0,rSecs=0,tState="idle",setsDone=0,totalSets=0;
+
+function fmt(s){var m=Math.floor(s/60),sc=s%60;return m+":"+(sc<10?"0":"")+sc;}
+
+function go(id){
+  var all=document.querySelectorAll(".page");
+  for(var i=0;i<all.length;i++) all[i].classList.remove("on");
+  document.getElementById(id).classList.add("on");
+  window.scrollTo(0,0);
+}
+
+function refreshHome(){
+  var n=Object.keys(done).length;
+  document.getElementById("cnt-done").textContent=n;
+  for(var i=0;i<DATA.length;i++){
+    var el=document.getElementById("ex-"+i);
+    var ck=document.getElementById("ck-"+i);
+    if(done[i]){el.classList.add("done");ck.classList.add("done");ck.innerHTML="&#10003;";}
+    else{el.classList.remove("done");ck.classList.remove("done");ck.innerHTML="";}
+  }
+  if(n===DATA.length) showComplete();
+}
+
+function openEx(id){
+  clearAll();cur=id;setsDone=0;
+  if(!sessStart) sessStart=Date.now();
+  renderDetail();go("pg-detail");
+}
+
+function renderDetail(){
+  var ex=DATA[cur];
+  document.getElementById("d-name").textContent=ex.name;
+  document.getElementById("d-meta").textContent=ex.meta;
+  document.getElementById("d-prog").style.width=(((cur+1)/DATA.length)*100)+"%";
+  document.getElementById("d-pill").innerHTML=ex.phase==="s"
+    ?"<span class='pill pill-s'>Stretching</span>"
+    :"<span class='pill pill-k'>Kettlebell</span>";
+  document.getElementById("d-wt").innerHTML=ex.wt
+    ?"<span class='wt-badge'>"+ex.wt+"</span>":"";
+  document.getElementById("d-cue").innerHTML=ex.cue;
+
+  var st=document.getElementById("sec-timer");
+  var ss=document.getElementById("sec-sets");
+  if(ex.tsecs){
+    st.style.display="block";ss.style.display="none";
+    initReady();
+  } else if(ex.sets){
+    st.style.display="none";ss.style.display="block";
+    totalSets=ex.sets;
+    document.getElementById("sets-lbl").textContent="Sets completed \u2014 "+ex.reps+" reps per set";
+    makeDots();
+    document.getElementById("rest-box").style.display="none";
+  } else {
+    st.style.display="none";ss.style.display="none";
+  }
+  document.getElementById("btn-prev").disabled=cur===0;
+  document.getElementById("btn-mark").textContent=done[cur]?"✕ Unmark":"✓ Mark as done";
+}
+
+function initReady(){
+  tState="idle";tSecs=READY;
+  document.getElementById("t-num").textContent=fmt(READY);
+  document.getElementById("t-lbl").textContent="Read the instructions then press start";
+  document.getElementById("t-state").textContent="Get ready";
+  document.getElementById("t-state").className="t-state ts-ready";
+  document.getElementById("btn-play").textContent="\u25B6 Start";
+}
+
+function playPause(){
+  if(tState==="idle"||tState==="paused"){
+    tState="getready";
+    document.getElementById("btn-play").textContent="\u23F8 Pause";
+    document.getElementById("t-state").textContent="Get ready";
+    document.getElementById("t-state").className="t-state ts-ready";
+    document.getElementById("t-lbl").textContent="Get into position...";
+    tInt=setInterval(tick,1000);
+  } else {
+    clearInterval(tInt);tInt=null;tState="paused";
+    document.getElementById("btn-play").textContent="\u25B6 Resume";
+    document.getElementById("t-state").textContent="Paused";
+    document.getElementById("t-state").className="t-state ts-pause";
+  }
+}
+
+function tick(){
+  tSecs--;
+  if(tSecs<=0){
+    if(tState==="getready"){
+      var ex=DATA[cur];tState="running";tSecs=ex.tsecs;
+      document.getElementById("t-state").textContent="Go!";
+      document.getElementById("t-state").className="t-state ts-go";
+      document.getElementById("t-lbl").textContent=ex.tlbl||"";
+      document.getElementById("btn-play").textContent="\u23F8 Pause";
+    } else {
+      tSecs=0;clearInterval(tInt);tInt=null;tState="done";
+      document.getElementById("t-state").textContent="Done!";
+      document.getElementById("t-state").className="t-state ts-go";
+      document.getElementById("t-lbl").textContent="";
+      document.getElementById("btn-play").textContent="\u25B6 Restart";
+      markDone();
+    }
+  }
+  document.getElementById("t-num").textContent=fmt(tSecs);
+}
+
+function makeDots(){
+  var c=document.getElementById("d-dots");c.innerHTML="";
+  for(var i=0;i<totalSets;i++){
+    var b=document.createElement("button");
+    b.className="sdot"+(i<setsDone?" on":"");
+    b.textContent=i+1;
+    b.setAttribute("data-i",i);
+    b.addEventListener("click",function(){tapDot(parseInt(this.getAttribute("data-i")));});
+    c.appendChild(b);
+  }
+}
+
+function tapDot(i){
+  var ex=DATA[cur];
+  if(i===setsDone){
+    setsDone++;makeDots();
+    if(setsDone<totalSets) startRest(ex.rest||60);
+    else{document.getElementById("rest-box").style.display="none";markDone();}
+  } else if(i===setsDone-1){
+    setsDone--;clearRest();
+    document.getElementById("rest-box").style.display="none";makeDots();
+  }
+}
+
+function startRest(s){
+  clearRest();rSecs=s;
+  document.getElementById("rest-box").style.display="block";
+  document.getElementById("rest-n").textContent=fmt(rSecs);
+  rInt=setInterval(function(){
+    rSecs--;
+    if(rSecs<=0){clearRest();document.getElementById("rest-box").style.display="none";}
+    else document.getElementById("rest-n").textContent=fmt(rSecs);
+  },1000);
+}
+
+function clearRest(){if(rInt){clearInterval(rInt);rInt=null;}}
+function clearAll(){clearRest();if(tInt){clearInterval(tInt);tInt=null;}tState="idle";}
+
+function markDone(){
+  if(done[cur]) delete done[cur]; else done[cur]=true;
+  renderDetail();refreshHome();
+}
+
+function showComplete(){
+  clearAll();
+  var mins=sessStart?Math.round((Date.now()-sessStart)/60000):0;
+  document.getElementById("c-count").textContent=Object.keys(done).length;
+  document.getElementById("c-time").textContent=mins;
+  go("pg-complete");
+}
+
+function resetAll(){
+  clearAll();done={};cur=0;setsDone=0;sessStart=null;
+  refreshHome();go("pg-home");
+}
+
+/* wire buttons */
+document.getElementById("btn-reset").addEventListener("click",resetAll);
+document.getElementById("btn-back").addEventListener("click",function(){clearAll();refreshHome();go("pg-home");});
+document.getElementById("btn-play").addEventListener("click",playPause);
+document.getElementById("btn-skip").addEventListener("click",function(){clearRest();document.getElementById("rest-box").style.display="none";});
+document.getElementById("btn-prev").addEventListener("click",function(){clearAll();if(cur>0){cur--;setsDone=0;renderDetail();}else{refreshHome();go("pg-home");}});
+document.getElementById("btn-next").addEventListener("click",function(){clearAll();var n=cur+1;if(n>=DATA.length)showComplete();else{cur=n;setsDone=0;renderDetail();}});
+document.getElementById("btn-mark").addEventListener("click",markDone);
+document.getElementById("btn-newses").addEventListener("click",resetAll);
+document.getElementById("btn-ovw").addEventListener("click",function(){refreshHome();go("pg-home");});
+
+/* wire exercise links */
+for(var i=0;i<DATA.length;i++){
+  (function(id){
+    document.getElementById("ex-"+id).addEventListener("click",function(e){e.preventDefault();openEx(id);});
+  })(i);
+}
+
+refreshHome();
+</script>
+</body>
+</html>
